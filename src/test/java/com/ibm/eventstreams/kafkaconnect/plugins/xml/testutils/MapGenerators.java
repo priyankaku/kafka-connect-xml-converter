@@ -15,6 +15,7 @@
  */
 package com.ibm.eventstreams.kafkaconnect.plugins.xml.testutils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.LinkedHashMap;
@@ -22,6 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.kafka.connect.data.Decimal;
 
 public class MapGenerators {
 
@@ -967,6 +970,13 @@ public class MapGenerators {
                 value.put("array-of-strings", arrayOfStrings);
                 value.put("map-of-arrays", mapOfArrays);
                 break;
+            }
+            case "052":{
+                value.put("ProductID", 1);
+                value.put("ProductName", "TestProductName");
+                value.put("Price",new BigDecimal(10000));
+                break;
+
             }
         }
         return value;

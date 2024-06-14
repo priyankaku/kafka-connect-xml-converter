@@ -15,12 +15,16 @@
  */
 package com.ibm.eventstreams.kafkaconnect.plugins.xml.testutils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.data.SchemaBuilder;
@@ -1679,6 +1683,26 @@ public class StructGenerators {
                 value.put("list-of-strings", listOfStrings);
                 value.put("array-of-strings", arrayOfStrings);
                 value.put("map-of-arrays", mapOfArrays);
+
+                return new SchemaAndValue(schema, value);
+            }
+            case "052":{
+                
+                final Schema decimalSchema = Decimal.builder(3).build();
+                final Schema schema = SchemaBuilder.struct()
+                    .name("root")
+                    .field("ProductID", Schema.INT32_SCHEMA)
+                    .field("ProductName", Schema.STRING_SCHEMA)
+                    .field("Price", decimalSchema)
+                    .build();
+                final Struct value = new Struct(schema);
+
+                BigDecimal bigDecimal = new BigDecimal(10).setScale(3);
+                byte[] decimalByte = Decimal.fromLogical(decimalSchema, bigDecimal);
+
+                value.put("ProductID", 1);
+                value.put("ProductName", "TestProductName");
+                value.put("Price", decimalByte);
 
                 return new SchemaAndValue(schema, value);
             }
