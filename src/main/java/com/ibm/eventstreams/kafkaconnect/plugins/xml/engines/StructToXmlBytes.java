@@ -1,28 +1,26 @@
 /**
  * Copyright 2023 IBM Corp. All Rights Reserved.
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
 package com.ibm.eventstreams.kafkaconnect.plugins.xml.engines;
 
-import java.math.BigDecimal;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
 
 import javax.xml.XMLConstants;
 
-import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Schema.Type;
@@ -56,12 +54,10 @@ public class StructToXmlBytes extends ToXmlBytes {
         final Document doc = createXmlDoc(schema, value, schemaName);
         return convertXmlDocToBytes(doc);
     }
-
     public byte[] convert(Schema schema, Collection<?> value) {
         final Document doc = createXmlDoc(schema, value, getConfig().getRootElementName());
         return convertXmlDocToBytes(doc);
     }
-
     public byte[] convert(Schema schema, Map<?, ?> value) {
         final Document doc = createXmlDoc(schema, value, getConfig().getRootElementName());
         return convertXmlDocToBytes(doc);
@@ -98,11 +94,14 @@ public class StructToXmlBytes extends ToXmlBytes {
                 for (final Field field : schema.fields()) {
                     processSchema(doc, schemaSequence, field.name(), field.schema());
                 }
-            } else if (schema.type() == Type.ARRAY) {
+            }
+            else if (schema.type() == Type.ARRAY) {
                 processSchema(doc, schemaSequence, "entry", schema);
-            } else if (schema.type() == Type.MAP) {
+            }
+            else if (schema.type() == Type.MAP) {
                 processMapSchema(doc, schemaSequence, schema);
-            } else {
+            }
+            else {
                 log.error("Unknown type found in schema {}", schema.type().getName());
             }
 
@@ -110,17 +109,21 @@ public class StructToXmlBytes extends ToXmlBytes {
         }
 
         if (value instanceof Struct) {
-            processStruct(doc, root, (Struct) value);
-        } else if (value instanceof Collection) {
-            addListElements(doc, root, (Collection<?>) value, "entry");
-        } else if (value instanceof Map) {
-            processMap(doc, root, (Map<?, ?>) value);
-        } else {
+            processStruct(doc, root, (Struct)value);
+        }
+        else if (value instanceof Collection) {
+            addListElements(doc, root, (Collection<?>)value, "entry");
+        }
+        else if (value instanceof Map) {
+            processMap(doc, root, (Map<?, ?>)value);
+        }
+        else {
             throw new NotImplementedException(value.getClass());
         }
 
         return doc;
     }
+
 
 
     private void processSchema(Document doc, Element sequenceElement, String name, Schema schema) {
@@ -137,7 +140,8 @@ public class StructToXmlBytes extends ToXmlBytes {
                     if (schema.valueSchema().isOptional()) {
                         schemaElement.setAttribute("minOccurs", "0");
                     }
-                } else {
+                }
+                else {
                     final Element arrayTypeDef = addNode(doc, schemaElement, "xs:complexType");
                     final Element arraySeq = addNode(doc, arrayTypeDef, "xs:sequence");
 
@@ -145,9 +149,11 @@ public class StructToXmlBytes extends ToXmlBytes {
                         for (final Field field : schema.valueSchema().fields()) {
                             processSchema(doc, arraySeq, field.name(), field.schema());
                         }
-                    } else if (schema.valueSchema().type() == Type.ARRAY) {
+                    }
+                    else if (schema.valueSchema().type() == Type.ARRAY) {
                         processSchema(doc, arraySeq, "entry", schema.valueSchema());
-                    } else if (schema.valueSchema().type() == Type.MAP) {
+                    }
+                    else if (schema.valueSchema().type() == Type.MAP) {
                         processMapSchema(doc, arraySeq, schema.valueSchema());
                     }
                 }
@@ -227,18 +233,14 @@ public class StructToXmlBytes extends ToXmlBytes {
 
                 case BYTES:
                     final Element bytesElement = doc.createElement(field.name());
+                    if (source.getBytes(field.name()) != null) {
+                        final byte[] bytes = source.getBytes(field.name());
 
-                    final byte[] bytes = (Decimal.LOGICAL_NAME.equals(fieldSchema.name())) ?
-                            Decimal.fromLogical(fieldSchema, new BigDecimal(String.valueOf(source.get(field.name())))) :
-                            source.getBytes(field.name());
-
-                    if (bytes != null) {
                         String strRepresentation;
                         if (bytes.length == 1 && "xs:byte".equals(fieldSchema.doc())) {
                             strRepresentation = Byte.toString(bytes[0]);
-                        } else if (Decimal.LOGICAL_NAME.equals(fieldSchema.name())) {
-                            strRepresentation = Decimal.toLogical(fieldSchema, bytes).toString();
-                        } else {
+                        }
+                        else {
                             strRepresentation = new String(Base64.getEncoder().encode(bytes));
                         }
 
@@ -262,25 +264,30 @@ public class StructToXmlBytes extends ToXmlBytes {
 
             if (key == null) {
                 addNode(doc, mapItemElement, "key");
-            } else if (key instanceof Struct) {
+            }
+            else if (key instanceof Struct) {
                 final Element mapItemKeyElement = addNode(doc, mapItemElement, "key");
                 processStruct(doc, mapItemKeyElement, (Struct) key);
-            } else if (key instanceof String) {
+            }
+            else if (key instanceof String) {
                 final Element mapItemKeyElement = addNode(doc, mapItemElement, "key");
                 mapItemKeyElement.setTextContent(key.toString());
-            } else if (key instanceof byte[]) {
+            }
+            else if (key instanceof byte[]) {
                 final Element mapItemKeyElement = addNode(doc, mapItemElement, "key");
-                mapItemKeyElement.setTextContent(Base64.getEncoder().encodeToString((byte[]) key));
+                mapItemKeyElement.setTextContent(Base64.getEncoder().encodeToString((byte[])key));
             }
             // else if (key.getClass().isArray()) {
             //     addListElements(doc, mapItemElement, ListUtils.nullSafeArrayToList((Object[])key), "key");
             //}
             else if (key instanceof Collection) {
-                addListElements(doc, mapItemElement, (Collection<?>) key, "key");
-            } else if (key instanceof Map) {
+                addListElements(doc, mapItemElement, (Collection<?>)key, "key");
+            }
+            else if (key instanceof Map) {
                 final Element mapItemKeyElement = addNode(doc, mapItemElement, "key");
-                processMap(doc, mapItemKeyElement, (Map<?, ?>) key);
-            } else {
+                processMap(doc, mapItemKeyElement, (Map<?,?>) key);
+            }
+            else {
                 final Element mapItemKeyElement = addNode(doc, mapItemElement, "key");
                 mapItemKeyElement.setTextContent(key.toString());
             }
@@ -290,21 +297,25 @@ public class StructToXmlBytes extends ToXmlBytes {
             if (value instanceof Struct) {
                 final Element mapItemValueElement = addNode(doc, mapItemElement, "value");
                 processStruct(doc, mapItemValueElement, (Struct) value);
-            } else if (value instanceof String) {
+            }
+            else if (value instanceof String) {
                 addXmlTextNode(doc, mapItemElement, "value", value.toString());
-            } else if (value instanceof byte[]) {
+            }
+            else if (value instanceof byte[]) {
                 final Element mapItemValueElement = addNode(doc, mapItemElement, "value");
-                mapItemValueElement.setTextContent(Base64.getEncoder().encodeToString((byte[]) value));
+                mapItemValueElement.setTextContent(Base64.getEncoder().encodeToString((byte[])value));
             }
             // else if (value.getClass().isArray()) {
             //    addListElements(doc, mapItemElement, ListUtils.nullSafeArrayToList((Object[])value), "value");
             // }
             else if (value instanceof Collection) {
-                addListElements(doc, mapItemElement, (Collection<?>) value, "value");
-            } else if (value instanceof Map) {
+                addListElements(doc, mapItemElement, (Collection<?>)value, "value");
+            }
+            else if (value instanceof Map) {
                 final Element mapItemValueElement = addNode(doc, mapItemElement, "value");
-                processMap(doc, mapItemValueElement, (Map<?, ?>) value);
-            } else {
+                processMap(doc, mapItemValueElement, (Map<?,?>) value);
+            }
+            else {
                 final Element mapItemValueElement = addNode(doc, mapItemElement, "value");
                 mapItemValueElement.setTextContent(value.toString());
             }
@@ -320,11 +331,14 @@ public class StructToXmlBytes extends ToXmlBytes {
             final Element element = doc.createElement(field);
             if (obj instanceof Struct) {
                 processStruct(doc, element, (Struct) obj);
-            } else if (obj instanceof Collection) {
+            }
+            else if (obj instanceof Collection) {
                 addListElements(doc, element, (Collection<?>) obj, "entry");
-            } else if (obj instanceof Map) {
+            }
+            else if (obj instanceof Map) {
                 processMap(doc, element, (Map<?, ?>) obj);
-            } else if (obj != null) {
+            }
+            else if (obj != null) {
                 element.appendChild(doc.createTextNode(obj.toString()));
             }
 
@@ -359,13 +373,16 @@ public class StructToXmlBytes extends ToXmlBytes {
             if (entry instanceof Struct) {
                 final Element entryElement = addNode(doc, parentElement, elementName);
                 processStruct(doc, entryElement, (Struct) entry);
-            } else if (entry instanceof Collection) {
+            }
+            else if (entry instanceof Collection) {
                 final Element entryElement = addNode(doc, parentElement, elementName);
                 addListElements(doc, entryElement, (Collection<?>) entry, "entry");
-            } else if (entry instanceof Map) {
+            }
+            else if (entry instanceof Map) {
                 final Element entryElement = addNode(doc, parentElement, elementName);
-                processMap(doc, entryElement, (Map<?, ?>) entry);
-            } else {
+                processMap(doc, entryElement, (Map<?,?>) entry);
+            }
+            else {
                 addXmlTextNode(doc, parentElement, elementName, entry.toString());
             }
         }
