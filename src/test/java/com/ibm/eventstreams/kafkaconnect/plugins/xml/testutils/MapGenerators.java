@@ -974,7 +974,7 @@ public class MapGenerators {
             case "052":{
                 value.put("ProductID", 1);
                 value.put("ProductName", "TestProductName");
-                value.put("Price",new BigDecimal(10000));
+                value.put("Price",new BigDecimal("10.000"));
                 break;
 
             }

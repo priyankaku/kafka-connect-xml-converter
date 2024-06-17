@@ -1698,11 +1698,10 @@ public class StructGenerators {
                 final Struct value = new Struct(schema);
 
                 BigDecimal bigDecimal = new BigDecimal(10).setScale(3);
-                byte[] decimalByte = Decimal.fromLogical(decimalSchema, bigDecimal);
 
                 value.put("ProductID", 1);
                 value.put("ProductName", "TestProductName");
-                value.put("Price", decimalByte);
+                value.put("Price", bigDecimal);
 
                 return new SchemaAndValue(schema, value);
             }
