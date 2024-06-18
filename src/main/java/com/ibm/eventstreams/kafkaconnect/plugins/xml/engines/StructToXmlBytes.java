@@ -235,21 +235,24 @@ public class StructToXmlBytes extends ToXmlBytes {
 
                 case BYTES:
                     final Element bytesElement = doc.createElement(field.name());
-                    final byte[] bytes =
-                            Decimal.LOGICAL_NAME.equals(fieldSchema.name()) ?
-                                    Decimal.fromLogical(fieldSchema, new BigDecimal(String.valueOf(source.get(field.name())))) :
-                                    source.getBytes(field.name());
-                    if (bytes != null) {
-                        String strRepresentation;
-                        if (bytes.length == 1 && "xs:byte".equals(fieldSchema.doc())) {
-                            strRepresentation = Byte.toString(bytes[0]);
-                        } else if (Decimal.LOGICAL_NAME.equals(fieldSchema.name())) {
-                            strRepresentation = Decimal.toLogical(fieldSchema, bytes).toString();
-                        } else {
-                            strRepresentation = Base64.getEncoder().encodeToString(bytes);
-                        }
-                        bytesElement.appendChild(doc.createTextNode(strRepresentation));
+                    final byte[] bytes ;
+                    String strRepresentation;
+
+                    if (Decimal.LOGICAL_NAME.equals(fieldSchema.name())){
+                       bytes = Decimal.fromLogical(fieldSchema, new BigDecimal(String.valueOf(source.get(field.name()))));
+                       strRepresentation = Decimal.toLogical(fieldSchema, bytes).toString();
+                    } else {
+                       bytes =  source.getBytes(field.name());
+                       if (bytes.length == 1 && "xs:byte".equals(fieldSchema.doc())) {
+                           strRepresentation = Byte.toString(bytes[0]);
+                       } else if (Decimal.LOGICAL_NAME.equals(fieldSchema.name())) {
+                           strRepresentation = Decimal.toLogical(fieldSchema, bytes).toString();
+                       } else {
+                           strRepresentation = Base64.getEncoder().encodeToString(bytes);
+                       }
                     }
+                    bytesElement.appendChild(doc.createTextNode(strRepresentation));
+
                     parentElement.appendChild(bytesElement);
                     break;
 
