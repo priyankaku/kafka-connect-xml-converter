@@ -5,7 +5,13 @@
             <xs:sequence>
                 <xs:element type="xs:integer" name="ProductID"/>
                 <xs:element type="xs:string" name="ProductName"/>
-                <xs:element type="xs:decimal" name="Price"/>
+                <xs:element name="Price">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:decimal">
+                            <xs:fractionDigits value="3"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType> 
     </xs:element>    

@@ -16,8 +16,6 @@
 package com.ibm.eventstreams.kafkaconnect.plugins.xml.testutils;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;

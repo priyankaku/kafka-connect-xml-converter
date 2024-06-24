@@ -239,14 +239,11 @@ public class StructToXmlBytes extends ToXmlBytes {
                     String strRepresentation;
 
                     if (Decimal.LOGICAL_NAME.equals(fieldSchema.name())){
-                       bytes = Decimal.fromLogical(fieldSchema, new BigDecimal(String.valueOf(source.get(field.name()))));
-                       strRepresentation = Decimal.toLogical(fieldSchema, bytes).toString();
+                        strRepresentation = source.get(field.name()).toString();
                     } else {
                        bytes =  source.getBytes(field.name());
                        if (bytes.length == 1 && "xs:byte".equals(fieldSchema.doc())) {
                            strRepresentation = Byte.toString(bytes[0]);
-                       } else if (Decimal.LOGICAL_NAME.equals(fieldSchema.name())) {
-                           strRepresentation = Decimal.toLogical(fieldSchema, bytes).toString();
                        } else {
                            strRepresentation = Base64.getEncoder().encodeToString(bytes);
                        }
